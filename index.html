@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>感情調節尺度日本語版（ERQ-J）自己理解ワークシート</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .highlight {
+            background: linear-gradient(transparent 60%, #fef08a 60%);
+            font-weight: 700;
+            color: #0f766e;
+        }
+        .text-justified {
+            text-align: justify;
+            text-justify: inter-character;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .print-container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased line-height-relaxed min-h-screen flex flex-col">
+
+    <!-- ヘッダー -->
+    <header class="bg-gradient-to-r from-teal-900 via-slate-900 to-indigo-950 text-white shadow-md sticky top-0 z-50 no-print">
+        <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div>
+                <p class="text-xs font-bold text-teal-300 uppercase tracking-wider">自己理解・心理教育ワーク</p>
+                <h1 class="text-sm sm:text-base font-bold text-white mt-0.5">感情調節尺度（ERQ-J）自己診断シート</h1>
+            </div>
+            <span class="text-xs bg-white/10 px-3 py-1.5 rounded-full border border-white/20 text-teal-200">
+                🔒 完全ローカル動作（データ非送信）
+            </span>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex-grow w-full">
+
+        <!-- 導入バナー -->
+        <div class="text-center mb-10 no-print">
+            <span class="inline-block bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full mb-3">Emotion Regulation Questionnaire - Japanese</span>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
+                自分の「感情の整え方」を見つめ直す
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
+                感情が動いたとき、私たちはどのような方略をよく使っているでしょうか？<br class="hidden sm:inline">
+                優劣を競うものではなく、自分自身の心と行動のクセを客観的に知るためのワークです。
+            </p>
+        </div>
+
+        <!-- 質問紙セクション -->
+        <div id="survey-section" class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-sm transition-all duration-300">
+            
+            <!-- 教示文 -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-8 text-justified">
+                <h2 class="text-sm font-bold text-slate-900 mb-2 flex items-center">
+                    <span class="w-2 h-4 bg-teal-600 rounded-sm mr-2"></span>
+                    ご回答にあたって（教示文）
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                    以下の10個の文章は，日頃の自分自身の感情の調節について記述した文章です。各質問項目について，あなたご自身にどのくらいあてはまるか，1（全くあてはまらない）から7（非常にあてはまる）の中から選んでお答えください。<br><br>
+                    <span class="text-slate-600 text-xs">
+                        ※<strong>肯定的な感情</strong>とは，喜びや楽しさなどの好ましい感情のことです。<br>
+                        ※<strong>否定的な感情</strong>とは，悲しさや怒りなどの好ましくない感情のことです。<br>
+                        ※特定の出来事やその日の気分ではなく、「日頃の普段の自分」を思い浮かべて回答してください。
+                    </span>
+                </p>
+                <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                    <span>進捗状況: <strong id="progress-text" class="text-teal-700 font-bold">0 / 10</strong> 回答済み</span>
+                    <span class="text-teal-600 font-bold" id="progress-percent">0%</span>
+                </div>
+                <div class="w-full bg-slate-200 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                    <div id="progress-bar" class="bg-teal-600 h-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- 質問リスト（JSで自動生成） -->
+            <form id="erq-form" onsubmit="event.preventDefault(); calculateScore();" class="space-y-8">
+                <div id="questions-container" class="space-y-8"></div>
+
+                <!-- 送信ボタン -->
+                <div class="pt-6 border-t border-slate-200 text-center">
+                    <button type="submit" id="submit-btn" disabled
+                            class="w-full sm:w-auto bg-slate-300 text-slate-500 font-bold px-10 py-3.5 rounded-2xl text-sm sm:text-base cursor-not-allowed transition-all shadow-sm">
+                        すべての質問に回答すると結果を表示できます
+                    </button>
+                    <p class="text-xs text-slate-400 mt-3 flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        回答データは外部に送信されず、端末のブラウザ内でのみ集計されます。
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <!-- 結果表示セクション（初期は非表示） -->
+        <div id="result-section" class="hidden bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-lg print-container">
+            
+            <div class="border-b border-slate-200 pb-6 mb-8 text-center">
+                <span class="inline-block bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full mb-2 no-print">REVIEW SHEET</span>
+                <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                    あなたの感情調整方略（ERQ-J）レビュー
+                </h2>
+                <p class="text-xs text-slate-500 mt-1">※この結果はあなた自身の手元にのみ表示されており、サーバーには送信されていません。</p>
+            </div>
+
+            <!-- スコアサマリーカード -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+                <!-- 再評価方略 -->
+                <div class="bg-gradient-to-br from-teal-50/70 to-emerald-50/40 border border-teal-200 p-6 rounded-2xl relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold text-teal-800 uppercase tracking-wide">方略 ①</span>
+                        <span class="text-xs text-slate-500">6〜42点</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-teal-950 mb-1">再評価方略</h3>
+                    <p class="text-xs text-slate-600 mb-4">認知の捉え直し（Cognitive Reappraisal）</p>
+                    
+                    <div class="flex items-baseline space-x-2 mb-3">
+                        <span class="text-3xl sm:text-4xl font-extrabold text-teal-900 font-mono" id="reappraisal-avg">0.00</span>
+                        <span class="text-xs text-slate-600 font-medium">/ 7.00 （平均点）</span>
+                    </div>
+                    
+                    <!-- ゲージバー -->
+                    <div class="w-full bg-teal-100/80 h-2.5 rounded-full overflow-hidden mb-2">
+                        <div id="reappraisal-bar" class="bg-teal-600 h-full w-0 transition-all duration-1000"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-500">
+                        <span>1.0（低い）</span>
+                        <span>4.0（中間）</span>
+                        <span>7.0（高い）</span>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-teal-200/60 text-xs text-slate-700 space-y-1">
+                        <p>・合計得点：<strong id="reappraisal-sum" class="font-bold text-teal-950 font-mono">-</strong> 点 / 42点</p>
+                        <p>・一般的基準：<span class="text-slate-600">大学生平均 約4.6〜4.8点</span></p>
+                    </div>
+                </div>
+
+                <!-- 抑制方略 -->
+                <div class="bg-gradient-to-br from-indigo-50/70 to-blue-50/40 border border-indigo-200 p-6 rounded-2xl relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold text-indigo-800 uppercase tracking-wide">方略 ②</span>
+                        <span class="text-xs text-slate-500">4〜28点</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-indigo-950 mb-1">抑制方略</h3>
+                    <p class="text-xs text-slate-600 mb-4">表出の抑制（Expressive Suppression）</p>
+                    
+                    <div class="flex items-baseline space-x-2 mb-3">
+                        <span class="text-3xl sm:text-4xl font-extrabold text-indigo-900 font-mono" id="suppression-avg">0.00</span>
+                        <span class="text-xs text-slate-600 font-medium">/ 7.00 （平均点）</span>
+                    </div>
+
+                    <!-- ゲージバー -->
+                    <div class="w-full bg-indigo-100/80 h-2.5 rounded-full overflow-hidden mb-2">
+                        <div id="suppression-bar" class="bg-indigo-600 h-full w-0 transition-all duration-1000"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-slate-500">
+                        <span>1.0（低い）</span>
+                        <span>4.0（中間）</span>
+                        <span>7.0（高い）</span>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-indigo-200/60 text-xs text-slate-700 space-y-1">
+                        <p>・合計得点：<strong id="suppression-sum" class="font-bold text-indigo-950 font-mono">-</strong> 点 / 28点</p>
+                        <p>・一般的基準：<span class="text-slate-600">大学生平均 約3.4〜3.8点</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- あなたの感情調整スタイル（診断・解説） -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8 text-justified">
+                <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-3 flex items-center">
+                    <span class="w-2.5 h-5 bg-teal-600 rounded-sm mr-2.5"></span>
+                    あなたのスコアから読み解く特徴と解釈
+                </h3>
+                <div id="style-description" class="text-xs sm:text-sm text-slate-700 space-y-3 leading-relaxed">
+                    <!-- JSで動的に解説を挿入 -->
+                </div>
+            </div>
+
+            <!-- 保育・教育・対人援助の現場に向けた振り返りコラム -->
+            <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-6 mb-8 text-justified text-xs sm:text-sm text-slate-800 space-y-3">
+                <h4 class="font-bold text-amber-950 flex items-center text-sm sm:text-base">
+                    💡 授業での学びを深めるポイント：感情調整の「良い・悪い」を超えて
+                </h4>
+                <p>
+                    ERQ-Jは「どちらが優れているか」を測るテストではありません。感情調整のプロセスモデル（Gross, 1998）において、<strong class="text-teal-900">再評価</strong>は感情が湧き上がる前に認知の枠組みを変える「先行焦点型」の方略であり、<strong class="text-indigo-900">抑制</strong>は感情が生じた後に表情や態度を抑える「反応焦点型」の方略です。
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
+                    <div class="bg-white/80 p-3 rounded-xl border border-amber-200/60">
+                        <strong class="text-teal-950 block mb-1">■ 保育・教育における「再評価」の意義</strong>
+                        子どもの突発的な癇癪やトラブルに対して、「この子は自分を困らせようとしている」ではなく「まだ言葉で伝えられず困っているサインだ」と捉え直すことで、感情的にならず冷静な支援が可能になります（燃え尽き症候群の予防）。
+                    </div>
+                    <div class="bg-white/80 p-3 rounded-xl border border-amber-200/60">
+                        <strong class="text-indigo-950 block mb-1">■ 保育・教育における「抑制」の専門性</strong>
+                        保育者や教員には、緊急時や保護者対応など、自分の焦りや怒りをその場ではグッと表に出さず、子どもに安心感を与える「プロとしての抑制」が不可欠です。ただし、家庭や信頼できる同僚の前では適切に感情を発散し、ため込みすぎないバランスが大切です。
+                    </div>
+                </div>
+            </div>
+
+            <!-- アクションボタン（印刷・やり直し） -->
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-3 pt-4 border-t border-slate-200 no-print">
+                <button onclick="window.print()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white font-bold px-6 py-3 rounded-xl text-xs sm:text-sm transition-all shadow-sm flex items-center justify-center cursor-pointer">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    この結果を保存・印刷する（PDF保存）
+                </button>
+                <button onclick="resetSurvey()" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-6 py-3 rounded-xl text-xs sm:text-sm transition-all border border-slate-300 cursor-pointer">
+                    もう一度回答する
+                </button>
+            </div>
+
+            <!-- 出典表記 -->
+            <div class="mt-8 pt-4 border-t border-slate-100 text-[11px] text-slate-400 text-center leading-relaxed">
+                【尺度出典】<br>
+                Gross, J. J., & John, O. P. (2003). Individual differences in two emotion regulation processes: Implications for affect, relationships, and well-being. <em>Journal of Personality and Social Psychology</em>, 85(2), 348–362.<br>
+                吉津 潤・関口理久子・雨宮俊彦 (2013). 感情調節尺度（Emotion Regulation Questionnaire）日本語版の作成 <em>感情心理学研究</em>, 20(2), 56–62.
+            </div>
+        </div>
+
+    </main>
+
+    <!-- フッター -->
+    <footer class="bg-slate-900 text-slate-400 text-center py-6 text-xs border-t border-slate-800 no-print mt-12">
+        <p>&copy; 感情調節尺度（ERQ-J） 自己理解演習ツール All Rights Reserved.</p>
+    </footer>
+
+    <!-- スクリプト -->
+    <script>
+        // ERQ-J 日本語版 正式10項目文（Stanford公式公開版準拠）
+        const questions = [
+            { id: 1, type: "reappraisal", text: "私は，自分が置かれている状況についての考え方を変えることで，感情をコントロールする" },
+            { id: 2, type: "reappraisal", text: "私は，否定的な感情をあまり感じたくない時は，考えていることを変える" },
+            { id: 3, type: "suppression", text: "私は，自分の感情を表に出さないことで，感情をコントロールする" },
+            { id: 4, type: "reappraisal", text: "私は，もっと肯定的な感情を感じたい時は，考えていることを変える" },
+            { id: 5, type: "reappraisal", text: "私は，否定的な感情をあまり感じたくない時は，その状況についての考え方を変える" },
+            { id: 6, type: "suppression", text: "肯定的な感情を感じた時は，感情を表に出さないように注意する" },
+            { id: 7, type: "reappraisal", text: "ストレスを感じる状況では，考え方を変えて落ち着いていられるようにする" },
+            { id: 8, type: "suppression", text: "私は自分の感情を表には出さない" },
+            { id: 9, type: "reappraisal", text: "私は，もっと肯定的な感情を感じたい時は，その状況についての考え方を変える" },
+            { id: 10, type: "suppression", text: "否定的な感情を感じた時は，その感情を決して表に出さないようにする" }
+        ];
+
+        const options = [
+            { val: 1, label: "全くあてはまらない" },
+            { val: 2, label: "ほとんどあてはまらない" },
+            { val: 3, label: "あまりあてはまらない" },
+            { val: 4, label: "どちらでもない" },
+            { val: 5, label: "ややあてはまる" },
+            { val: 6, label: "かなりあてはまる" },
+            { val: 7, label: "非常にあてはまる" }
+        ];
+
+        const userAnswers = {};
+
+        // 設問のレンダリング
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.getElementById("questions-container");
+            let html = "";
+
+            questions.forEach((q, idx) => {
+                const qNum = idx + 1;
+                html += `
+                    <div class="p-5 rounded-2xl border border-slate-200 bg-white transition-all hover:border-teal-300" id="q-card-${q.id}">
+                        <div class="flex items-start mb-4">
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-teal-50 text-teal-800 font-bold text-xs mr-3 shrink-0 mt-0.5 border border-teal-100">
+                                Q${qNum}
+                            </span>
+                            <p class="text-sm sm:text-base font-bold text-slate-800 text-justified leading-relaxed">
+                                ${q.text}
+                            </p>
+                        </div>
+
+                        <!-- 7件法ボタン群 -->
+                        <div class="grid grid-cols-7 gap-1 sm:gap-2 pt-2">
+                            ${options.map(opt => `
+                                <label class="cursor-pointer group flex flex-col items-center">
+                                    <input type="radio" name="q_${q.id}" value="${opt.val}" 
+                                           onchange="handleSelect(${q.id}, ${opt.val})" 
+                                           class="sr-only peer">
+                                    <div class="w-full py-2.5 sm:py-3 text-center rounded-xl border border-slate-200 text-xs sm:text-sm font-bold text-slate-600 
+                                                peer-checked:bg-teal-700 peer-checked:text-white peer-checked:border-teal-700 peer-checked:shadow-sm
+                                                group-hover:border-teal-400 transition-all flex flex-col items-center justify-center">
+                                        <span class="font-mono text-sm sm:text-base">${opt.val}</span>
+                                        <span class="text-[9px] sm:text-[10px] hidden md:inline-block scale-90 font-normal mt-0.5 whitespace-nowrap opacity-80">${opt.label}</span>
+                                    </div>
+                                </label>
+                            `).join('')}
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-400 px-1 mt-1.5 md:hidden">
+                            <span>1: 全くあてはまらない</span>
+                            <span>4: どちらでもない</span>
+                            <span>7: 非常にあてはまる</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        });
+
+        // 選択ハンドラ
+        function handleSelect(questionId, value) {
+            userAnswers[questionId] = parseInt(value, 10);
+            updateProgress();
+        }
+
+        // 進捗バー更新
+        function updateProgress() {
+            const answeredCount = Object.keys(userAnswers).length;
+            const total = questions.length;
+            const percent = Math.floor((answeredCount / total) * 100);
+
+            document.getElementById("progress-text").innerText = `${answeredCount} / ${total}`;
+            document.getElementById("progress-percent").innerText = `${percent}%`;
+            document.getElementById("progress-bar").style.width = `${percent}%`;
+
+            const btn = document.getElementById("submit-btn");
+            if (answeredCount === total) {
+                btn.disabled = false;
+                btn.classList.remove("bg-slate-300", "text-slate-500", "cursor-not-allowed");
+                btn.classList.add("bg-teal-700", "hover:bg-teal-800", "text-white", "cursor-pointer", "hover:shadow-md");
+                btn.innerText = "自己診断結果・レビューを表示する";
+            } else {
+                btn.disabled = true;
+                btn.classList.add("bg-slate-300", "text-slate-500", "cursor-not-allowed");
+                btn.classList.remove("bg-teal-700", "hover:bg-teal-800", "text-white", "cursor-pointer", "hover:shadow-md");
+                btn.innerText = `残り ${total - answeredCount} 問に回答してください`;
+            }
+        }
+
+        // スコア計算・結果描画
+        function calculateScore() {
+            if (Object.keys(userAnswers).length < questions.length) {
+                alert("未回答の項目があります。すべて選択してください。");
+                return;
+            }
+
+            // 再評価方略：1, 2, 4, 5, 7, 9 （6項目）
+            const reappraisalIds = [1, 2, 4, 5, 7, 9];
+            const reappraisalSum = reappraisalIds.reduce((acc, id) => acc + (userAnswers[id] || 0), 0);
+            const reappraisalAvg = (reappraisalSum / reappraisalIds.length).toFixed(2);
+
+            // 抑制方略：3, 6, 8, 10 （4項目）
+            const suppressionIds = [3, 6, 8, 10];
+            const suppressionSum = suppressionIds.reduce((acc, id) => acc + (userAnswers[id] || 0), 0);
+            const suppressionAvg = (suppressionSum / suppressionIds.length).toFixed(2);
+
+            // 値の反映
+            document.getElementById("reappraisal-avg").innerText = reappraisalAvg;
+            document.getElementById("reappraisal-sum").innerText = reappraisalSum;
+            document.getElementById("suppression-avg").innerText = suppressionAvg;
+            document.getElementById("suppression-sum").innerText = suppressionSum;
+
+            // バーの長さ計算（1.0〜7.0 を 0%〜100% にマッピング）
+            const reappraisalPct = Math.min(100, Math.max(0, ((parseFloat(reappraisalAvg) - 1) / 6) * 100));
+            const suppressionPct = Math.min(100, Math.max(0, ((parseFloat(suppressionAvg) - 1) / 6) * 100));
+
+            // セクション切り替え
+            document.getElementById("survey-section").classList.add("hidden");
+            const resultSection = document.getElementById("result-section");
+            resultSection.classList.remove("hidden");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            setTimeout(() => {
+                document.getElementById("reappraisal-bar").style.width = `${reappraisalPct}%`;
+                document.getElementById("suppression-bar").style.width = `${suppressionPct}%`;
+            }, 100);
+
+            // 特徴解説文の生成
+            generateDescription(parseFloat(reappraisalAvg), parseFloat(suppressionAvg));
+        }
+
+        // スタイル別フィードバック生成
+        function generateDescription(rAvg, sAvg) {
+            const descEl = document.getElementById("style-description");
+            const rHigh = rAvg >= 4.5; // 大学生平均基準（約4.5以上を高め）
+            const sHigh = sAvg >= 3.6; // 大学生平均基準（約3.6以上を高め）
+
+            let styleTitle = "";
+            let styleBody = "";
+
+            if (rHigh && !sHigh) {
+                styleTitle = "【しなやか・表現型】再評価が高く、抑制がひかえめなスタイル";
+                styleBody = "嫌なことや困難な場面に直面したとき、「別の見方をしてみよう」「成長のチャンスかもしれない」と考え方や状況の捉え方を前向きに切り替える傾向が豊かです。また、感情を無理に押し殺さず、素直に周囲と分かち合うことができます。ストレス耐性が高く、人との情緒的なつながりを作りやすい特徴があります。";
+            } else if (rHigh && sHigh) {
+                styleTitle = "【適応・二重調整型】再評価も抑制もともに活用するスタイル";
+                styleBody = "状況の捉え直しによって気持ちを落ち着かせると同時に、TPOに応じて自分の感情表現をグッとコントロールする力も備えています。保育や対人援助などの専門職において、子どもの前で冷静さを保ちつつ、頭の中では状況を客観的に捉え直して動くといった高度な状況適応が期待できるスタイルです。ただし、感情を抑える場面が続いたときは、信頼できる人に気持ちを話すなどガス抜きを意識しましょう。";
+            } else if (!rHigh && sHigh) {
+                styleTitle = "【耐忍・セルフコントロール型】抑制をよく使い、再評価がひかえめなスタイル";
+                styleBody = "周囲との摩擦を避けたり、相手を動揺させないために、自分の感情をグッと内側に留める自制心が強い傾向にあります。対人関係の調和を守る力がある反面、頭の中で感情を消化する前に表出だけを抑え込んでしまうと、心の中にストレスや疲労が蓄積しやすくなります。「別の捉え方はできないか」と視点を変える練習を取り入れると、心がぐっと軽くなります。";
+            } else {
+                styleTitle = "【自然体・ストレート型】再評価も抑制もあまり強く用いないスタイル";
+                styleBody = "感情を無理に操作したり、過剰に抑え込んだりせず、湧き上がってきた感情をそのまま素直に感じる傾向があります。裏表がなく自然体でいられる強みがある一方、激しい怒りや深い落ち込みに直面したときに、感情に圧倒されてしまうことがあります。深呼吸をして一歩引いて状況を眺める習慣を少しずつ育てていくとよいでしょう。";
+            }
+
+            descEl.innerHTML = `
+                <div class="bg-white p-4 rounded-xl border border-slate-200">
+                    <p class="font-bold text-teal-950 mb-1.5 text-sm sm:text-base">${styleTitle}</p>
+                    <p class="text-slate-700 leading-relaxed">${styleBody}</p>
+                </div>
+                <div class="text-xs text-slate-600 space-y-1.5 pt-2">
+                    <p>・<strong>あなたの再評価平均：${rAvg.toFixed(2)} 点</strong> （目安：4.0以上は捉え直しの方略をよく使っている傾向）</p>
+                    <p>・<strong>あなたの抑制平均：${sAvg.toFixed(2)} 点</strong> （目安：4.0以上は表出を抑える方略をよく使っている傾向）</p>
+                    <p class="text-[11px] text-slate-500 pt-1">※得点の高低そのものに優劣はありません。自分がどんなときに感情を抑え、どんなときに考え方を変えているかを振り返ってみましょう。</p>
+                </div>
+            `;
+        }
+
+        // リセット
+        function resetSurvey() {
+            if (!confirm("回答をリセットして最初からやり直しますか？")) return;
+            for (let k in userAnswers) delete userAnswers[k];
+            document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+            updateProgress();
+            document.getElementById("result-section").classList.add("hidden");
+            document.getElementById("survey-section").classList.remove("hidden");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
